@@ -5,7 +5,7 @@
 ## ✨ 主要功能
 
 ### 🎯 核心处理功能
-- **智能分手逻辑**：自动分离左右手音符，支持Logic Pro等DAW的MIDI命名兼容
+- **智能分手逻辑**：自动分离左右手音符，支持Logic Pro等DAW的MIDI习惯
 - **BPM自动检测**：从音频文件自动检测BPM，修复AI生成MIDI的节奏问题
 - **音符智能清理**：过滤过短、过轻、超出音域的无效音符
 - **重叠音符处理**：清理不合理的音符重叠，优化演奏效果
@@ -37,11 +37,7 @@ pip install -r requirements.txt
 # Windows
 start_server.bat
 
-# 或直接运行
-python main.py
-```
-
-访问 `http://localhost:8000` 即可使用Web界面。
+访问 `http://localhost:8080/index.html` 即可使用Web界面。
 
 ## 📁 项目结构
 
@@ -70,26 +66,19 @@ midi2Score/
 ```
 
 ## 🎵 使用方法
-
-### 方法一：Web界面（推荐）
-1. 启动服务后访问 `http://localhost:8000`
+1. 启动服务后访问 `http://localhost:8080/index.html`
 2. 上传MIDI文件（.mid格式）
 3. 可选：上传对应的音频文件用于BPM检测
 4. 配置处理参数（BPM、分手设置等）
 5. 点击"开始处理"，等待处理完成
 6. 下载处理后的MIDI文件
 
-### 方法二：命令行
-```bash
-python main.py --input input.mid --audio input.mp3 --output output.mid
-```
+## 智能分手逻辑
 
-## 🧠 智能分手逻辑
-
-本工具采用先进的分手算法，特别针对以下情况进行优化：
+本工具采用基于规则的分手算法，特别针对以下情况进行优化：
 
 - **Logic Pro兼容性**：自动识别Logic Pro等DAW的MIDI音符命名差异
-- **和弦智能分配**：A2、C3、F3等低音和弦自动分配到左手
+- **和弦智能分配**：一个八度内的音符自动分配到同一只手
 - **中央C规则**：包含中央C且最低音≤A3的音符组优先分配左手
 - **音域分析**：基于音符分布自动判断左右手区域
 
