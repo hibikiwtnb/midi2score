@@ -1,0 +1,7 @@
+librosa
+numpy
+mido
+pretty_midi
+fastapi
+uvicorn
+python-rtmidi

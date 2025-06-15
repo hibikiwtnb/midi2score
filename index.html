@@ -1,0 +1,234 @@
+<html lang="zh-CN"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI钢琴扒谱MIDI处理工具</title>  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Noto Sans TC', 'Microsoft JhengHei', 'Arial', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="main.css"></head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+  <div class="max-w-2xl mx-auto py-8 space-y-4">
+    <!-- 文件上传区块 -->
+    <section class="bg-white rounded-lg shadow p-6 space-y-6">
+      <h2 class="text-xl font-bold">文件上传</h2>
+      <div class="space-y-4">
+        <!-- MIDI文件上传 -->
+        <div>
+          <label class="block font-medium mb-1">上传MIDI文件（.mid）</label>
+          <div class="flex items-center space-x-4">
+            <input type="file" accept=".mid,.midi" class="block w-full text-sm text-gray-600 border border-gray-300 bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 focus:outline-none focus:ring-2 focus:ring-blue-400" id="midi-upload">
+            <span class="text-xs text-gray-400" id="midi-status">未选择文件</span>
+          </div>
+        </div>
+        <!-- 音频文件上传 -->
+        <div>
+          <label class="block font-medium mb-1">上传音频文件（mp3/wav/flac/m4a）<span class="text-xs text-gray-500 ml-1">（用于侦测BPM）</span></label>
+          <div class="flex items-center space-x-4">
+            <input type="file" accept=".mp3,.wav,.flac,.m4a" class="block w-full text-sm text-gray-600 border border-gray-300 bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400" id="audio-upload">
+            <span class="text-xs text-gray-400" id="audio-status">未选择文件</span>
+          </div>
+          
+          <!-- AI生成MIDI的BPM说明 -->
+          <div class="info-panel info-panel-yellow">
+            <h5 class="info-title info-title-yellow">🤖 AI生成MIDI的BPM处理说明</h5>
+            <div class="info-content info-content-yellow">
+              <p><strong>常见问题：</strong>piano_transcription等AI工具生成的MIDI文件默认BPM通常为120，与原音频的实际节拍不符</p>
+              <p><strong>解决方案：</strong></p>
+              <ul class="ml-4 list-disc space-y-0.5">
+                <li><span class="font-medium">上传原音频文件</span> → 系统自动检测真实BPM并应用到MIDI</li>
+                <li>如果您的MIDI文件BPM已经正确，则<span class="font-medium">无需上传音频</span></li>
+                <li>支持格式：MP3、WAV、FLAC、M4A</li>
+              </ul>
+              <p class="mt-2 text-yellow-600"><strong>建议：</strong>上传用于AI转换的原始音频文件以获得最佳节拍匹配效果</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 新版：独立讯息显示区 -->
+      <div class="mt-2 flex flex-col gap-1">
+        <div id="midi-log" class="text-xs text-gray-700 bg-gray-100 rounded p-2 min-h-[1.5rem]">MIDI文件未上传</div>
+        <div id="audio-log" class="text-xs text-gray-700 bg-gray-100 rounded p-2 min-h-[1.5rem]">音频文件未上传</div>
+      </div>
+      <!-- 旧版兼容区块可保留或移除 -->
+      <!-- <div id="upload-log" class="mt-2 text-xs text-gray-700 bg-gray-100 rounded p-2 min-h-[2.5rem]"></div> -->    </section>
+
+    <!-- BPM分析与修复区块 -->
+    <section class="bg-white rounded-lg shadow p-6 space-y-4">
+      <h2 class="text-xl font-bold mb-2">BPM分析与修复</h2>
+      <div id="bpm-chart-container" class="w-full h-[180px] bg-gray-200 rounded flex items-center justify-center text-gray-400 mb-4"><canvas id="bpm-chart-canvas" height="180" style="width:100%"></canvas></div>
+      <div class="flex items-center space-x-4">
+        <label class="flex items-center space-x-2">
+          <input type="checkbox" checked="" id="fixed-bpm-checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+          <span class="text-sm">全曲固定BPM</span>
+        </label>
+        <input id="bpm-input" type="text" min="1" max="400" placeholder="BPM数值" class="ml-2 px-2 py-1 w-24 border">
+        <div class="flex-1"></div>
+        <button id="fix-bpm-btn" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 flex items-center space-x-2 ml-auto">
+          <span>应用BPM</span>
+        </button>
+      </div>
+    </section>    <!-- 无效音符清理区块 -->
+    <section class="bg-white rounded-lg shadow p-6 space-y-4">
+      <h2 class="text-xl font-bold mb-2">无效音符清理</h2>
+      <!-- Tab 切换 -->
+      <div class="mb-2 border-b border-gray-200">
+        <nav class="flex space-x-4" id="note-clean-tabs">
+          <button class="tab-btn px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none" data-tab="velocity">力度分布</button>
+          <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 border-b-2 border-transparent focus:outline-none" data-tab="duration">时值分布</button>
+        </nav>
+      </div>
+      <!-- 图表区域 -->
+      <div class="relative">        <div id="velocity-container" class="w-full h-52 bg-gray-200 rounded mb-2 relative">
+          <canvas id="velocity-chart" class="w-full h-full"></canvas>
+          <!-- 横向拖动线 -->
+          <div id="velocity-threshold" class="absolute left-0 top-2/3 w-full h-0.5 bg-blue-500 opacity-70 cursor-row-resize flex items-center justify-center group" style="top:70%">
+            <span id="velocity-tip" class="absolute left-1/2 -translate-x-1/2 hidden" style="top:8px; margin-top:2px;">下方的音符将被删除</span>
+          </div>
+        </div>
+        <div id="duration-container" class="w-full h-52 bg-gray-200 rounded mb-2 hidden relative">
+          <canvas id="duration-chart" class="w-full h-full"></canvas>
+          <!-- 横向拖动线 -->
+          <div id="duration-threshold" class="absolute left-0 top-1/2 w-full h-0.5 bg-blue-500 opacity-70 cursor-row-resize flex items-center justify-center group" style="top:60%">
+            <span id="duration-tip" class="absolute left-1/2 -translate-x-1/2 hidden" style="top:8px; margin-top:2px;">下方的音符将被删除</span>
+          </div>
+        </div>
+      </div>
+      <!-- 两行输入区块，确保每行一组标签+输入框 -->
+      <div class="flex flex-col gap-y-2 w-full mt-2">        <div class="flex w-full items-center">
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" id="filter-duration-checkbox" class="form-checkbox h-5 w-5 text-blue-600" checked="">
+            <span class="text-sm text-gray-700 min-w-[18em] mr-2 text-left">过滤此时值以下的音符（毫秒）</span>
+          </label>
+          <input type="number" min="0" max="10000" step="1" value="30" class="px-1.5 py-1 border rounded text-sm w-24 mr-2" id="min-duration-input">
+          <button id="duration-recommend-btn" class="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 whitespace-nowrap">推荐值</button>
+        </div>
+        <div class="flex w-full items-center">
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" id="filter-velocity-checkbox" class="form-checkbox h-5 w-5 text-blue-600" checked="">
+            <span class="text-sm text-gray-700 min-w-[18em] mr-2 text-left">过滤此力度值以下的音符（velocity）</span>
+          </label>
+          <input type="number" min="0" max="127" step="1" value="40" class="px-1.5 py-1 border rounded text-sm w-24 mr-2" id="min-velocity-input">
+        </div>
+      </div>
+      <!-- 限制音域过滤 -->
+      <div class="flex items-center space-x-4 mt-2">
+        <label class="flex items-center space-x-2">
+          <input type="checkbox" id="filter-range-checkbox" class="form-checkbox h-5 w-5 text-blue-600" checked="">
+          <span class="text-sm text-gray-700">限制音域范围（删除超出范围的音符）</span>
+        </label>
+        <select id="range-limit-select" class="px-2 py-1 border rounded text-sm">
+          <option value="88" selected="">88键（A0–C8）</option>
+          <option value="76">76键（E1–G7）</option>
+          <option value="61">61键（C2–C7）</option>
+          <option value="custom">自订</option>
+        </select>
+        <div id="custom-range-inputs" class="flex items-center space-x-2 hidden">
+          <label class="text-sm text-gray-700">最低音</label>
+          <input type="text" id="custom-range-min" value="C2" class="px-1.5 py-1 border rounded text-sm w-16" placeholder="如C2">
+          <label class="text-sm text-gray-700">最高音</label>
+          <input type="text" id="custom-range-max" value="G7" class="px-1.5 py-1 border rounded text-sm w-16" placeholder="如G7">        </div>
+      </div>
+      <div id="note-stats" class="flex flex-wrap gap-4 text-sm text-gray-600">
+        <span>总音符数：<b>0</b></span>
+        <span>将被删除：<b>0</b></span>
+        <span>保留比例：<b>100%</b></span>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-2">
+        <button id="filter-notes-btn" class="px-3 py-1.5 bg-red-600 text-white rounded hover:bg-red-700 whitespace-nowrap">执行清理</button>
+      </div>
+    </section>
+    <!-- 左右手分离,踏板中断补全,音符重叠清理选项区块 -->
+    <section class="bg-white rounded-lg shadow p-6 space-y-3">
+      <div class="space-y-3">
+        <label class="inline-flex items-center">
+          <input type="checkbox" checked="" class="form-checkbox h-5 w-5 text-blue-600" id="hand-split-checkbox">
+          <span class="ml-2 text-base">启用左右手分离</span>
+        </label>
+
+        <!-- 左右手 MIDI 输出配置 -->
+        <div class="ml-7 space-y-3 border-l-2 border-blue-200 pl-4 bg-blue-50 rounded-r-lg pr-4 py-3">
+          <div class="grid grid-cols-2 gap-4">
+            <!-- 左手配置 -->
+            <div class="space-y-2">
+              <h4 class="text-sm font-medium text-gray-700">左手输出</h4>
+              <div class="flex items-center space-x-2">
+                <label class="text-xs text-gray-600 w-12">Track</label>
+                <input type="number" id="left-hand-track" min="1" max="16" value="1" class="px-2 py-1 w-16 border rounded text-sm">
+              </div>
+              <div class="flex items-center space-x-2">
+                <label class="text-xs text-gray-600 w-12">Channel</label>
+                <input type="number" id="left-hand-channel" min="1" max="16" value="3" class="px-2 py-1 w-16 border rounded text-sm">
+              </div>
+            </div>
+            
+            <!-- 右手配置 -->
+            <div class="space-y-2">
+              <h4 class="text-sm font-medium text-gray-700">右手输出</h4>
+              <div class="flex items-center space-x-2">
+                <label class="text-xs text-gray-600 w-12">Track</label>
+                <input type="number" id="right-hand-track" min="1" max="16" value="1" class="px-2 py-1 w-16 border rounded text-sm">
+              </div>
+              <div class="flex items-center space-x-2">
+                <label class="text-xs text-gray-600 w-12">Channel</label>
+                <input type="number" id="right-hand-channel" min="1" max="16" value="1" class="px-2 py-1 w-16 border rounded text-sm">
+              </div>
+            </div>
+          </div>
+          
+          <!-- 分手逻辑说明 -->
+          <div class="info-panel info-panel-blue">
+            <h5 class="info-title info-title-blue">🎹 智能分手逻辑说明</h5>
+            <div class="info-content info-content-blue">
+              <p><strong>分组原则：</strong>时间差≤32分音符且音域≤1个八度的音符将被视为同一和弦组</p>
+              <p><strong>分配规则：</strong></p>
+              <ul class="ml-4 list-disc space-y-0.5">
+                <li>全部音符低于中央C → <span class="font-medium">左手</span></li>
+                <li>全部音符高于等于中央C → <span class="font-medium">右手</span></li>
+                <li>跨越中央C的和弦组 → 比较音符与中央C的距离决定</li>
+                <li>特殊处理：包含中央C且有低音符(≤A3)的组 → <span class="font-medium">左手</span> (兼容Logic Pro等DAW)</li>
+              </ul>
+              <p class="mt-2 text-blue-600"><strong>音符命名：</strong>MIDI标准(C3=中央C)</p>
+            </div>
+          </div>
+        </div>
+
+        <label class="inline-flex items-center mt-3">
+          <input type="checkbox" checked="" class="form-checkbox h-5 w-5 text-blue-600" id="overlap-clean-checkbox">
+          <span class="ml-2 text-base">启用音符重叠调整（同一声部的重叠音符将被调整长度）</span>
+        </label>
+
+        <div class="flex items-center mt-3">
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" id="pedal-fix-checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+            <span class="text-base">启用踏板中断补全（自动连缀间隔极短的中断）</span>
+          </label>
+          <div class="flex-1"></div>
+          <label for="pedal-gap-input" class="text-sm text-gray-700 mr-2">最小中断时长（ms）</label>
+          <input id="pedal-gap-input" type="number" min="10" max="500" step="10" value="80" class="px-2 py-1 w-24 border rounded text-sm">
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-2">
+        <button id="process-midi-btn" class="px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 whitespace-nowrap">执行处理</button>
+      </div>
+    </section>    <!-- 结果汇出区块 -->
+    <section class="bg-white rounded-lg shadow p-6 space-y-4">
+      <h2 class="text-xl font-bold mb-2">结果汇出</h2>
+      <ul class="space-y-2">        <li class="flex items-center justify-between bg-gray-100 rounded px-3 py-2">
+          <span id="result-filename">修正后的MIDI文件.mid</span>
+          <button id="download-result-btn" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" disabled="">下载</button>
+        </li>
+      </ul>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="main.js"></script>
+</body></html>

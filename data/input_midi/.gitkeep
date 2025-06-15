@@ -1,0 +1,2 @@
+# This file ensures the input_midi directory is tracked by git
+# MIDI files will be ignored by .gitignore
