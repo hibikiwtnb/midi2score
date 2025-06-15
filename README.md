@@ -41,34 +41,37 @@ start_server.bat
 
 ## 项目结构
 
-```
-midi2Score/
-|-- index.html              # Web前端界面
-|-- main.css               # 样式文件
-|-- main.js                # 前端交互逻辑
-|-- main.py                # FastAPI后端服务
-|-- requirements.txt       # Python依赖
-|-- LICENSE                # 开源许可证
-|-- hand_splitting_logic.md # 分手逻辑说明
-|-- modules/               # 核心处理模块
-|   |-- bpm_estimator.py      # BPM检测
-|   |-- hand_splitter.py      # 分手逻辑
-|   |-- midi_rescaler.py      # MIDI重新缩放
-|   |-- note_filter.py        # 音符过滤
-|   `-- midi_writer.py        # MIDI输出
-|-- apis/                  # API接口
-|   |-- midi_upload_api.py    # MIDI上传API
-|   `-- audio_bpm_api.py      # BPM检测API
-|-- data/                  # 数据目录
-|   |-- input_audio/          # 音频输入
-|   |-- input_midi/           # MIDI输入
-|   `-- output_midi/          # 处理结果
-|-- uploads/               # 上传缓存
-|-- test/                  # 测试文件
-|-- start_server.sh        # Linux/macOS启动脚本
-|-- start_server.bat       # Windows启动脚本
-`-- stop_server.sh         # 停止服务脚本
-```
+**核心文件：**
+- `index.html` - Web前端界面
+- `main.css` - 样式文件  
+- `main.js` - 前端交互逻辑
+- `main.py` - FastAPI后端服务
+- `requirements.txt` - Python依赖
+- `LICENSE` - 开源许可证
+- `hand_splitting_logic.md` - 分手逻辑说明
+
+**核心处理模块 (`modules/`)：**
+- `bpm_estimator.py` - BPM检测
+- `hand_splitter.py` - 分手逻辑
+- `midi_rescaler.py` - MIDI重新缩放
+- `note_filter.py` - 音符过滤
+- `midi_writer.py` - MIDI输出
+
+**API接口 (`apis/`)：**
+- `midi_upload_api.py` - MIDI上传API
+- `audio_bpm_api.py` - BPM检测API
+
+**数据目录 (`data/`)：**
+- `input_audio/` - 音频输入
+- `input_midi/` - MIDI输入
+- `output_midi/` - 处理结果
+
+**其他目录和脚本：**
+- `uploads/` - 上传缓存
+- `test/` - 测试文件
+- `start_server.sh` - Linux/macOS启动脚本
+- `start_server.bat` - Windows启动脚本
+- `stop_server.sh` - 停止服务脚本
 
 ## 使用方法
 1. 启动服务后访问 `http://localhost:8080/index.html`
