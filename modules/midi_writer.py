@@ -26,30 +26,6 @@ def apply_overlap_clean(midi_file):
     
     return new_midi
 
-def apply_pedal_fix(midi_file, pedal_gap_ms):
-    """
-    應用踏板中斷補全邏輯
-    """
-    # 這是一個簡化的實現
-    # 實際的踏板補全需要分析control_change消息（sustain pedal = controller 64）
-    new_midi = midi_file.copy()
-    
-    for track in new_midi.tracks:
-        # 查找踏板消息並處理間隔
-        pedal_events = []
-        current_time = 0
-        
-        for msg in track:
-            current_time += msg.time
-            if msg.type == 'control_change' and msg.control == 64:  # Sustain pedal
-                pedal_events.append((current_time, msg.value, msg))
-        
-        # 簡單的間隔補全邏輯
-        # 這裡只是一個佔位符實現
-        pass
-    
-    return new_midi
-
 def process_midi(midi_path):
     # 載入 MIDI
     midi = mido.MidiFile(midi_path)

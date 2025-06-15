@@ -447,11 +447,6 @@ async def process_midi(
         if params.get('overlapClean', False):
             processed_mid = apply_overlap_clean(processed_mid)
         
-        # 3. 踏板中斷補全
-        if params.get('pedalFix', False):
-            pedal_gap = params.get('pedalGap', 80)
-            processed_mid = apply_pedal_fix(processed_mid, pedal_gap)
-        
         # 保存處理後的文件
         processed_mid.save(output_path)
         
@@ -575,30 +570,6 @@ def apply_overlap_clean(midi_file):
             msg.time = abs_time - prev_time
             track.append(msg)
             prev_time = abs_time
-    return new_midi
-
-def apply_pedal_fix(midi_file, pedal_gap_ms):
-    """
-    應用踏板中斷補全邏輯
-    """
-    # 這是一個簡化的實現
-    # 實際的踏板補全需要分析control_change消息（sustain pedal = controller 64）
-    new_midi = midi_file.copy()
-    
-    for track in new_midi.tracks:
-        # 查找踏板消息並處理間隔
-        pedal_events = []
-        current_time = 0
-        
-        for msg in track:
-            current_time += msg.time
-            if msg.type == 'control_change' and msg.control == 64:  # Sustain pedal
-                pedal_events.append((current_time, msg.value, msg))
-        
-        # 簡單的間隔補全邏輯
-        # 這裡只是一個佔位符實現
-        pass
-    
     return new_midi
 
 @app.post('/cleanup-uploads')

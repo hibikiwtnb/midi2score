@@ -965,9 +965,7 @@ async function executeMidiProcessing() {
     leftHandChannel: parseInt(document.getElementById('left-hand-channel')?.value) || 1,
     rightHandTrack: parseInt(document.getElementById('right-hand-track')?.value) || 1,
     rightHandChannel: parseInt(document.getElementById('right-hand-channel')?.value) || 3,
-    overlapClean: document.getElementById('overlap-clean-checkbox')?.checked || false,
-    pedalFix: document.getElementById('pedal-fix-checkbox')?.checked || false,
-    pedalGap: parseInt(document.getElementById('pedal-gap-input')?.value) || 80
+    overlapClean: document.getElementById('overlap-clean-checkbox')?.checked || false
   };
 
   // 創建 FormData，注意key必須為 midi（不是 midi_file）
