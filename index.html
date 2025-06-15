@@ -16,6 +16,22 @@
   <link rel="stylesheet" href="main.css"></head>
 <body class="bg-gray-50 min-h-screen text-gray-800">
   <div class="max-w-2xl mx-auto py-8 space-y-4">
+    
+    <!-- 页面标题和介绍 -->
+    <header class="bg-white rounded-lg shadow p-6 text-center">
+      <h1 class="text-3xl font-bold text-gray-900 mb-3">AI钢琴MIDI转五线谱工具</h1>
+      <p class="text-gray-600 mb-4">智能处理AI生成的钢琴MIDI文件，帮助快速生成高质量的钢琴五线谱</p>
+      <div class="flex justify-center items-center space-x-4">
+        <a href="https://github.com/hibikiwtnb/midi2score" target="_blank" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors text-sm">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clip-rule="evenodd"></path>
+          </svg>
+          GitHub项目
+        </a>
+        <span class="text-sm text-gray-500">开源·免费·专业</span>
+      </div>
+    </header>
+    
     <!-- 文件上传区块 -->
     <section class="bg-white rounded-lg shadow p-6 space-y-6">
       <h2 class="text-xl font-bold">文件上传</h2>
@@ -213,9 +229,20 @@
           <span id="result-filename">修正后的MIDI文件.mid</span>
           <button id="download-result-btn" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600" disabled="">下载</button>
         </li>
-      </ul>
-    </section>
+      </ul>    </section>
   </div>
+
+  <!-- 页面底部 -->
+  <footer class="max-w-2xl mx-auto py-6 px-4 text-center text-sm text-gray-500">
+    <div class="border-t border-gray-200 pt-4">
+      <p class="mb-2">© 2025 AI钢琴MIDI转五线谱工具 | 开源项目</p>
+      <div class="flex justify-center space-x-4">
+        <a href="https://github.com/hibikiwtnb/midi2score" target="_blank" class="hover:text-blue-600">GitHub</a>
+        <a href="https://github.com/hibikiwtnb/midi2score/blob/main/README.md" target="_blank" class="hover:text-blue-600">使用说明</a>
+        <a href="https://github.com/hibikiwtnb/midi2score/issues" target="_blank" class="hover:text-blue-600">问题反馈</a>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="main.js"></script>
